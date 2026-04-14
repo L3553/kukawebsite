@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To Kuka Ruqia - Countdown Edition</title>
+    <title>To Kuka Ruqia - Enhanced Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Great+Vibes&family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -25,9 +25,10 @@
             align-items: center;
             overflow: hidden;
             font-family: 'Amiri', serif;
+            /* لمنع اهتزاز العناصر أثناء الانيميشن */
+            backface-visibility: hidden;
         }
 
-        /* العد التنازلي */
         #countdown {
             position: fixed;
             top: 50%;
@@ -40,32 +41,40 @@
             z-index: 2000;
             display: none;
             text-shadow: 0 0 20px rgba(255, 92, 141, 0.4);
+            pointer-events: none;
         }
 
         .heart-rain {
-            position: absolute; top: -50px; pointer-events: none; z-index: 1000;
+            position: absolute; 
+            top: -10%; 
+            pointer-events: none; 
+            z-index: 1000;
+            will-change: transform;
             animation: rainFall linear forwards;
-            will-change: transform; 
         }
+
         @keyframes rainFall {
             0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
+            20% { opacity: 0.8; }
             100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
 
         .envelope-container {
-            position: relative; width: 320px; height: 220px;
-            cursor: pointer; z-index: 10;
+            position: relative; 
+            width: 320px; 
+            height: 220px;
+            cursor: pointer; 
+            z-index: 10;
             transition: opacity 0.5s ease;
+            transform: translateZ(0); /* لضمان الثبات */
         }
+
         .env-body { position: absolute; inset: 0; background: var(--env-pink); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 2; }
-        
         .env-text {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             font-family: 'Great Vibes', cursive;
             font-size: 1.8rem; color: #fff; z-index: 5;
             text-shadow: 0 0 8px #ff1493; pointer-events: none;
-            white-space: nowrap;
         }
 
         .env-flap { position: absolute; top: 0; width: 100%; height: 100%; background: var(--flap-white); clip-path: polygon(0 0, 100% 0, 50% 55%); border-radius: 6px; transform-origin: top; transition: transform 0.6s ease; z-index: 4; }
@@ -87,7 +96,9 @@
             transition: opacity 0.4s ease, transform 0.4s ease;
             border: 2px solid #1a1a1a;
             text-align: center;
-            max-height: 85vh; overflow-y: auto;
+            max-height: 85vh; 
+            overflow-y: auto;
+            contain: layout; /* لمنع التأثير على بقية العناصر */
         }
 
         .vintage-paper.active { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -111,7 +122,6 @@
 <body>
 
     <div id="countdown">8</div>
-
     <div class="overlay" id="overlay"></div>
 
     <div class="envelope-container" id="envBtn">
@@ -166,12 +176,6 @@
         const pauseIcon = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
 
         env.addEventListener('click', () => {
-            // تشغيل الموسيقى فور الضغط للبدء مع العد
-            audio.play().catch(e => console.log("Play error"));
-            audioWrap.classList.add('playing');
-            icon.innerHTML = pauseIcon;
-
-            // إخفاء الظرف وبدء العد
             env.style.opacity = '0';
             env.style.pointerEvents = 'none';
             countdownEl.style.display = 'block';
@@ -183,6 +187,14 @@
                 count--;
                 if (count >= 0) {
                     countdownEl.innerText = count;
+                    
+                    // تشغيل الموسيقى عندما يصل العد إلى 6
+                    if (count === 6) {
+                        audio.play().catch(e => console.log("Audio waiting for 6"));
+                        audioWrap.classList.add('playing');
+                        icon.innerHTML = pauseIcon;
+                    }
+
                     countdownEl.style.transform = 'translate(-50%, -50%) scale(1.2)';
                     setTimeout(() => countdownEl.style.transform = 'translate(-50%, -50%) scale(1)', 200);
                 } else {
@@ -196,7 +208,6 @@
         function openEnvelope() {
             env.style.opacity = '1';
             env.classList.add('opened');
-            
             setTimeout(() => {
                 overlay.classList.add('active');
                 paper.classList.add('active');
@@ -210,6 +221,7 @@
             setTimeout(() => {
                 env.classList.remove('opened');
                 env.style.pointerEvents = 'auto';
+                env.style.opacity = '1';
             }, 400);
             audio.pause();
             audioWrap.classList.remove('playing');
@@ -232,6 +244,7 @@
         });
 
         function startRain() {
+            // تقليل سرعة إنتاج القلوب لمنع اللاغ (كل 800 مللي ثانية بدلاً من 400)
             const rainInterval = setInterval(() => {
                 if(!paper.classList.contains('active')) {
                     clearInterval(rainInterval);
@@ -240,14 +253,17 @@
                 const h = document.createElement('div');
                 h.className = 'heart-rain';
                 const colors = ['#ff5c8d', '#ffafcc', '#e3d5b0']; 
-                h.innerHTML = `<svg width="${Math.random()*15+15}" viewBox="0 0 24 24" fill="${colors[Math.floor(Math.random()*3)]}" opacity="0.6"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+                h.innerHTML = `<svg width="${Math.random()*15+10}" viewBox="0 0 24 24" fill="${colors[Math.floor(Math.random()*3)]}" opacity="0.6"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
                 h.style.left = Math.random() * 100 + 'vw';
-                h.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                // زيادة مدة السقوط لجعلها أكثر سلاسة (من 4 إلى 7 ثوانٍ)
+                h.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                h.style.animationTimingFunction = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                
                 document.body.appendChild(h);
-                setTimeout(() => h.remove(), 5000);
-            }, 400);
+                // إزالة العنصر من الـ DOM بعد انتهاء الأنميشن فوراً
+                setTimeout(() => h.remove(), 7000);
+            }, 800); 
         }
     </script>
 </body>
 </html>
-
