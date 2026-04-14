@@ -267,3 +267,236 @@
     </script>
 </body>
 </html>
+            font-family: 'Montserrat', sans-serif;
+            font-size: 8rem;
+            font-weight: 900;
+            color: var(--deep-rose);
+            z-index: 2000;
+            display: none;
+            text-shadow: 0 0 20px rgba(255, 92, 141, 0.4);
+            pointer-events: none;
+        }
+
+        .heart-rain {
+            position: absolute; 
+            top: -10%; 
+            pointer-events: none; 
+            z-index: 1000;
+            will-change: transform;
+            animation: rainFall linear forwards;
+        }
+
+        @keyframes rainFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .envelope-container {
+            position: relative; 
+            width: 320px; 
+            height: 220px;
+            cursor: pointer; 
+            z-index: 10;
+            transition: opacity 0.5s ease;
+            transform: translateZ(0); /* لضمان الثبات */
+        }
+
+        .env-body { position: absolute; inset: 0; background: var(--env-pink); border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 2; }
+        .env-text {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.8rem; color: #fff; z-index: 5;
+            text-shadow: 0 0 8px #ff1493; pointer-events: none;
+        }
+
+        .env-flap { position: absolute; top: 0; width: 100%; height: 100%; background: var(--flap-white); clip-path: polygon(0 0, 100% 0, 50% 55%); border-radius: 6px; transform-origin: top; transition: transform 0.6s ease; z-index: 4; }
+        .opened .env-flap { transform: rotateX(180deg); }
+        .env-pocket { position: absolute; bottom: 0; width: 100%; height: 100%; background: var(--env-pink); clip-path: polygon(0 40%, 100% 40%, 100% 100%, 0 100%); z-index: 3; }
+        .seal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 45px; z-index: 5; transition: 0.3s; }
+        .opened .seal { opacity: 0; transform: scale(0); }
+
+        .vintage-paper {
+            position: fixed; top: 50%; left: 50%;
+            width: min(92vw, 380px);
+            background-color: var(--vintage-bg);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 35px 20px;
+            border-radius: 4px;
+            z-index: 100;
+            visibility: hidden; opacity: 0;
+            transform: translate(-50%, -45%) scale(0.95);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            border: 2px solid #1a1a1a;
+            text-align: center;
+            max-height: 85vh; 
+            overflow-y: auto;
+            contain: layout; /* لمنع التأثير على بقية العناصر */
+        }
+
+        .vintage-paper.active { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        .poem-content { font-size: 1.2rem; line-height: 1.8; color: #2c1e11; font-weight: 700; white-space: pre-line; margin-bottom: 15px; }
+        .song-gold { font-family: 'Great Vibes', cursive; font-size: 1.6rem; background: var(--gold-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .play-wrapper { position: relative; display: inline-block; margin-top: 10px; }
+        .play-btn { width: 55px; height: 55px; background: #fff; border-radius: 50%; border: 1px solid #e3d5b0; cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 110; position: relative; }
+        .play-btn svg { width: 18px; fill: var(--deep-rose); }
+        
+        .pulse-wave { position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--deep-rose); opacity: 0; }
+        .playing .pulse-wave { animation: sonarWave 2s infinite; }
+        @keyframes sonarWave { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2); opacity: 0; } }
+
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); opacity: 0; visibility: hidden; transition: 0.4s; z-index: 50; }
+        .overlay.active { opacity: 1; visibility: visible; }
+        .close-x { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; color: #1a1a1a; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="countdown">8</div>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="envelope-container" id="envBtn">
+        <div class="env-text">To Kuka Ruqia</div>
+        <div class="env-body"></div>
+        <div class="env-flap"></div>
+        <div class="env-pocket"></div>
+        <div class="seal">
+            <svg viewBox="0 0 24 24" fill="#ff5c8d"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </div>
+    </div>
+
+    <div class="vintage-paper" id="paper">
+        <span class="close-x" onclick="closeAll()">×</span>
+        <div class="poem-content">
+            رُقَيُّ.. وأنتِ صابرةٌ كَرَوْضٍ
+            تؤمّلُ في غَمامِ الحُبِّ قَطرا
+            أراكِ مَنَحْتِني القَلْبَ ابْتِداءً
+            وصُنْتِ الودَّ إخلاصاً وصَبْرا
+            فيا مَن قد غَلَبْتِ الشوقَ نُبلاً
+            أَمَدُّ إليكِ كفَّ الوَصْلِ جَهرا
+            عَرَفتُ الآنَ كَم كُنتِ انتظاراً
+            فصارَ الوجدُ في الأعماقِ بَحرا
+            فأنتِ البَدْرُ يُشرِقُ في حياتي
+            وأنتِ الحُسنُ.. زِدتِ العُمرَ عِطرا
+        </div>
+
+        <div class="play-wrapper" id="audioWrap">
+            <div class="pulse-wave"></div>
+            <button class="play-btn" id="playBtn">
+                <svg id="icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+        </div>
+
+        <div class="song-gold">Risk It All</div>
+        <p style="font-family: 'Montserrat'; font-size: 0.7rem; color: #8b7e66; margin-top: 5px;">Bruno Mars</p>
+    </div>
+
+    <audio id="audio" src="https://n.uguu.se/dcPcvTyP.mp3" preload="auto" loop></audio>
+
+    <script>
+        const env = document.getElementById('envBtn');
+        const paper = document.getElementById('paper');
+        const overlay = document.getElementById('overlay');
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('playBtn');
+        const audioWrap = document.getElementById('audioWrap');
+        const icon = document.getElementById('icon');
+        const countdownEl = document.getElementById('countdown');
+
+        const playIcon = '<path d="M8 5v14l11-7z"/>';
+        const pauseIcon = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+
+        env.addEventListener('click', () => {
+            env.style.opacity = '0';
+            env.style.pointerEvents = 'none';
+            countdownEl.style.display = 'block';
+            
+            let count = 8;
+            countdownEl.innerText = count;
+
+            const timer = setInterval(() => {
+                count--;
+                if (count >= 0) {
+                    countdownEl.innerText = count;
+                    
+                    // تشغيل الموسيقى عندما يصل العد إلى 6
+                    if (count === 6) {
+                        audio.play().catch(e => console.log("Audio waiting for 6"));
+                        audioWrap.classList.add('playing');
+                        icon.innerHTML = pauseIcon;
+                    }
+
+                    countdownEl.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                    setTimeout(() => countdownEl.style.transform = 'translate(-50%, -50%) scale(1)', 200);
+                } else {
+                    clearInterval(timer);
+                    countdownEl.style.display = 'none';
+                    openEnvelope(); 
+                }
+            }, 1000);
+        });
+
+        function openEnvelope() {
+            env.style.opacity = '1';
+            env.classList.add('opened');
+            setTimeout(() => {
+                overlay.classList.add('active');
+                paper.classList.add('active');
+                startRain(); 
+            }, 600);
+        }
+
+        function closeAll() {
+            paper.classList.remove('active');
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                env.classList.remove('opened');
+                env.style.pointerEvents = 'auto';
+                env.style.opacity = '1';
+            }, 400);
+            audio.pause();
+            audioWrap.classList.remove('playing');
+            icon.innerHTML = playIcon;
+        }
+
+        overlay.addEventListener('click', closeAll);
+
+        playBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (audio.paused) {
+                audio.play();
+                audioWrap.classList.add('playing');
+                icon.innerHTML = pauseIcon;
+            } else {
+                audio.pause();
+                audioWrap.classList.remove('playing');
+                icon.innerHTML = playIcon;
+            }
+        });
+
+        function startRain() {
+            // تقليل سرعة إنتاج القلوب لمنع اللاغ (كل 800 مللي ثانية بدلاً من 400)
+            const rainInterval = setInterval(() => {
+                if(!paper.classList.contains('active')) {
+                    clearInterval(rainInterval);
+                    return;
+                }
+                const h = document.createElement('div');
+                h.className = 'heart-rain';
+                const colors = ['#ff5c8d', '#ffafcc', '#e3d5b0']; 
+                h.innerHTML = `<svg width="${Math.random()*15+10}" viewBox="0 0 24 24" fill="${colors[Math.floor(Math.random()*3)]}" opacity="0.6"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+                h.style.left = Math.random() * 100 + 'vw';
+                // زيادة مدة السقوط لجعلها أكثر سلاسة (من 4 إلى 7 ثوانٍ)
+                h.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                h.style.animationTimingFunction = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                
+                document.body.appendChild(h);
+                // إزالة العنصر من الـ DOM بعد انتهاء الأنميشن فوراً
+                setTimeout(() => h.remove(), 7000);
+            }, 800); 
+        }
+    </script>
+</body>
+</html>
